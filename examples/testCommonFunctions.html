@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>TEST ykl2.commonFunctions</title>
+</head>
+<body>
+
+<div onclick="getClientArea();">[クライアント領域取得]</div>
+<div onclick="getBodyArea();">[body 要素領域取得]</div>
+<div onclick="getScrollPos();">[スクロール量取得]</div>
+
+<script src="../ykl2.js"></script>
+<script>
+/**
+ * クライアント領域を取得してダイアログに表示します。
+ * @public
+ * @static
+ * @function
+ */
+function getClientArea()
+{
+    // 領域情報の取得
+    let width  = ykl2.commonFunctions.getClientWidth();
+    let height = ykl2.commonFunctions.getClientHeight();
+
+    // ダイアログ表示
+    alert('ClientArea\n' + 'width: ' + width +'px\nheight: ' + height +'px');
+}
+/**
+ * body 要素の領域を取得してダイアログに表示します。
+ * @public
+ * @static
+ * @function
+ */
+function getBodyArea()
+{
+    // 領域情報の取得
+    let width  = ykl2.commonFunctions.getBodyWidth();
+    let height = ykl2.commonFunctions.getBodyHeight();
+
+    // ダイアログ表示
+    alert('BodyArea\n' + 'width: ' + width +'px\nheight: ' + height +'px');
+}
+/**
+ * スクロール量を取得してダイアログに表示します。
+ * @public
+ * @static
+ * @function
+ */
+function getScrollPos()
+{
+    // スクロール量の取得
+    let x = ykl2.commonFunctions.getScrollX();
+    let y = ykl2.commonFunctions.getScrollY();
+
+    // ダイアログ表示
+    alert('ScrollPos\n' + 'X: ' + x + 'px\nY: ' + y + 'px');
+}
+</script>
+</body>
+</html>
