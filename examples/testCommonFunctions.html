@@ -9,6 +9,7 @@
 <div onclick="getClientArea();">[クライアント領域取得]</div>
 <div onclick="getBodyArea();">[body 要素領域取得]</div>
 <div onclick="getScrollPos();">[スクロール量取得]</div>
+<div onclick="canAnimationFrame();">[アニメーションフレーム対応可否]</div>
 
 <script src="../ykl2.js"></script>
 <script>
@@ -56,6 +57,21 @@ function getScrollPos()
 
     // ダイアログ表示
     alert('ScrollPos\n' + 'X: ' + x + 'px\nY: ' + y + 'px');
+}
+/**
+ * アニメーションフレームに対応しているかをダイアログに表示します。
+ * @public
+ * @static
+ * @function
+ */
+function canAnimationFrame()
+{
+    if(ykl2.commonFunctions.canAnimationFrame())
+    {
+        alert('アニメーションフレームに対応している。');
+        return;
+    }
+    alert('アニメーションフレームに対応していない。');
 }
 </script>
 </body>
