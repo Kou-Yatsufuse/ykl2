@@ -1,0 +1,10 @@
+@charset "utf-8";
+
+#dummyElement
+{
+    margin: 5px;
+    padding: 5px;
+    border-style: solid;
+    border-color: black;
+    border-width: 5px;
+}

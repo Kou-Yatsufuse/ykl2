@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="common.css" />
+    <title>TEST ykl2.appearImage</title>
+</head>
+<body>
+
+<div id="img-parent"></div>
+
+<script src="../ykl2.js"></script>
+<script>
+// 画像表示クラスを作成。
+const g_appearImages = new ykl2.appearImages('appear-image', 'img-parent', 100);
+
+// ページの読み込み後に起動する関数を登録。
+ykl2.commonFunctions.addOnLoadFunction(addImages);
+/**
+ * 画像を表示クラスに追加します。
+ * @public
+ * @function
+ */
+function addImages()
+{
+    // 画像をクラスに追加。
+    g_appearImages.addImage('appearImages/NRC1-001.jpg', 571, 800, 2000, 2000);
+    g_appearImages.addImage('appearImages/NRC1-002.jpg', 713, 800, 2000, 2000);
+    g_appearImages.addImage('appearImages/NRC1-003.jpg', 800, 717, 2000, 2000);
+    g_appearImages.addImage('appearImages/NRC1-004.jpg', 752, 800, 2000, 2000);
+    g_appearImages.addImage('appearImages/NRC1-005.jpg', 541, 800, 2000, 2000);
+
+    // 画像表示を開始します。
+    g_appearImages.start();
+}
+</script>
+</body>
+</html>

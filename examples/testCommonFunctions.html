@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="common.css" />
     <title>TEST ykl2.commonFunctions</title>
 </head>
 <body>
@@ -10,6 +11,8 @@
 <div onclick="getBodyArea();">[body 要素領域取得]</div>
 <div onclick="getScrollPos();">[スクロール量取得]</div>
 <div onclick="canAnimationFrame();">[アニメーションフレーム対応可否]</div>
+<div onclick="getElementDisplaySize();">[要素の表示領域サイズ取得]</div>
+<div id="dummyElement">ダミー表示領域</div>
 
 <script src="../ykl2.js"></script>
 <script>
@@ -72,6 +75,19 @@ function canAnimationFrame()
         return;
     }
     alert('アニメーションフレームに対応していない。');
+}
+/**
+ * 要素の表示領域を返します。
+ * @public
+ * @static
+ * @function
+ */
+function getElementDisplaySize()
+{
+    let ele = document.getElementById('dummyElement');
+    let size = ykl2.commonFunctions.getElementDisplaySize(ele);
+
+    alert('width:' + size.width + 'px height: ' + size.height + 'px');
 }
 </script>
 </body>
