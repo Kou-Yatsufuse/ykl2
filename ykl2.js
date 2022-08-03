@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-//  ykl2 v0.2.0
+//  ykl2 v0.2.1
 //-----------------------------------------------------------------------------
 //	Copyright (c) 2022 Kou Yatsufuse
 //	Released under the MIT license
@@ -170,47 +170,63 @@ ykl2.commonFunctions.addOnLoadFunction = function(func)
  * @param {Number} number 埋め込まれる数値です。
  * @returns {String} 指定された桁にゼロサプレスされた文字列です。
  */
- ykl2.commonFunctions.formatNumber = function(format, number)
- {
-     // %の箇所を特定します。ない場合はフォーマット文をそのまま返します。
-     var perIndex = format.indexOf('%');
-     if(perIndex < 0) { return format; }
-     
-     // %の直近のdを特定します。ない場合はフォーマット文をそのまま返します。
-     var decIndex = format.indexOf('d', perIndex + 1);
-     if(decIndex < 0) { return format; }
-     
-     // 数値の箇所を切り出します。ない場合はフォーマット文をそのまま返します。
-     var decStr = format.substring(perIndex + 1, decIndex - (perIndex + 1));
-     if(decStr.length <= 0) { return format; }
-     
-     // 切り出した文字列を数値に変換します。
-     var fix = parseInt(decStr, 10);
-     
-     // ループ準備
-     var index    = 0;
-     var indexMax = fix - number.toString().length;
-     var newStr   = '';
-     
-     // ゼロで埋めた数値文字列を作成する。
-     for(index = 0; index < indexMax; index++) { newStr += '0'; }
-     newStr += number.toString();
-     
-     // 文字列を作成して返します。
-     newStr = format.substring(0, perIndex) + newStr + format.substring(decIndex + 1);
-     return newStr;
- };
- /**
-  * 要素の表示領域サイズを返します。
-  * @public
-  * @static
-  * @function
-  * @returns {Object} 横幅(width), 高さ(height) を格納したオブジェクト
-  */
- ykl2.commonFunctions.getElementDisplaySize = function(ele)
- {
-    return { width: ele.clientWidth, height: ele.clientHeight };
- }
+ykl2.commonFunctions.formatNumber = function(format, number)
+{
+    // %の箇所を特定します。ない場合はフォーマット文をそのまま返します。
+    var perIndex = format.indexOf('%');
+    if(perIndex < 0) { return format; }
+    
+    // %の直近のdを特定します。ない場合はフォーマット文をそのまま返します。
+    var decIndex = format.indexOf('d', perIndex + 1);
+    if(decIndex < 0) { return format; }
+    
+    // 数値の箇所を切り出します。ない場合はフォーマット文をそのまま返します。
+    var decStr = format.substring(perIndex + 1, decIndex - (perIndex + 1));
+    if(decStr.length <= 0) { return format; }
+    
+    // 切り出した文字列を数値に変換します。
+    var fix = parseInt(decStr, 10);
+    
+    // ループ準備
+    var index    = 0;
+    var indexMax = fix - number.toString().length;
+    var newStr   = '';
+    
+    // ゼロで埋めた数値文字列を作成する。
+    for(index = 0; index < indexMax; index++) { newStr += '0'; }
+    newStr += number.toString();
+    
+    // 文字列を作成して返します。
+    newStr = format.substring(0, perIndex) + newStr + format.substring(decIndex + 1);
+    return newStr;
+};
+/**
+ * 要素の表示領域サイズを返します。
+ * @public
+ * @static
+ * @function
+ * @returns {Object} 横幅(width), 高さ(height) を格納したオブジェクト
+ */
+ykl2.commonFunctions.getElementDisplaySize = function(ele)
+{
+    // 要素が無効でない場合はクライアント領域をそのまま返す。
+    if(ele.style.display !== 'none') { return { width: ele.clientWidth, height: ele.clientHeight }; }
+
+    // 表示はさせないが、要素は存在するようにする。
+    ele.style.visibility = 'hidden';
+    ele.style.display = 'block';
+
+    // クライアント領域を取得する。
+    const width = ele.clientWidth;
+    const height = ele.clientHeight;
+
+    // 要素を非表示に戻す。
+    ele.style.display = 'none';
+    ele.style.visibility = '';
+
+    // 取得した値を返す。
+    return { width: width, height: height };
+}
 //-----------------------------------------------------------------------------
 //  ykl2 commonFunctions End.
 //-----------------------------------------------------------------------------
@@ -502,4 +518,351 @@ ykl2.appearImages.prototype._setNextIndex = function()
 }
 //-----------------------------------------------------------------------------
 //  ykl2 appearImages End.
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//  ykl2 animation Start.
+//-----------------------------------------------------------------------------
+/**
+ * アニメーションクラス宣言です。
+ * @public
+ * @static
+ * @namespace ykl2.animation
+ */
+ykl2.animation = {};
+/**
+* 開くときのアニメーションフラグです。
+* @public
+* @static
+* @field
+* @type {Number}
+*/
+ykl2.animation.DRAW_OPEN = 0;
+/**
+* 閉じる時のアニメーションフラグです。
+* @public
+* @static
+* @field
+* @type {Number}
+*/
+ykl2.animation.DRAW_CLOSE = 1;
+/**
+* 縦横アニメーションフラグです。
+* @public
+* @static
+* @field
+* @type {Number}
+*/
+ykl2.animation.DIRECTION_WH = 0;
+/**
+* 横アニメーションフラグです。
+* @public
+* @static
+* @field
+* @type {Number}
+*/
+ykl2.animation.DIRECTION_W = 1;
+/**
+* 縦アニメーションフラグです。
+* @public
+* @static
+* @field
+* @type {Number}
+*/
+ykl2.animation.DIRECTION_H = 2;
+/**
+* 描画情報オブジェクトです。
+* @private
+* @static
+* @field
+* @type {Object}
+*/
+ykl2.animation._drawInfo = {};
+/**
+* アニメーション中フラグです。
+* @private
+* @static
+* @field
+* @type {Boolean}
+*/
+ykl2.animation._isAnimation = false;
+/**
+ * オーバーフロースタイルのバックアップです。
+ * @private
+ * @static
+ * @field
+ * @type {String}
+ */
+ykl2.animation._overflowBackup = '';
+/**
+* 描画情報オブジェクトを返します。
+* @public
+* @static
+* @function
+* @returns {Object} 描画情報オブジェクトです。
+*/
+ykl2.animation.getDrawInfo = function()
+{
+	return this._drawInfo;
+};
+/**
+* 開閉アニメーションを行います。
+* @public
+* @static
+* @function
+* @param {Object} option 描画情報オブジェクトです。
+*/
+ykl2.animation.toggle = function(option)
+{
+	// アニメーション中は終了するまで処理させない。
+	if(this._isAnimation) { return; }
+	this._isAnimation = true;
+
+	// オプション値の補正。要素がない場合は終了する。
+	option = this._fixOption(option);
+	if(option.element === null) { return; }
+
+	// 描画情報を設定する。
+	this._drawInfo.element   = option.element;
+	this._drawInfo.direction = option.direction;
+	this._drawInfo.openClose = option.openClose;
+	this._drawInfo.width     = option.width;
+	this._drawInfo.height    = option.height;
+	this._drawInfo.time      = option.time;
+
+	// アニメーションを行う際は一番全面に表示する。
+	this._drawInfo.element.style.zIndex = 100;
+
+    // オーバーフローのバックアップを取り、クリップするように変更。
+    this._overflowBackup = this._drawInfo.element.style.overflow;
+    this._drawInfo.element.style.overflow = 'clip';
+
+	// 描画時の刻み値を設定する。
+	this._setDrawWH();
+
+	// アニメーション開始時の幅、高さを設定する。
+	this._setNowWH();
+
+	// requestAnimationFrameが使用できるかで処理を分ける。
+	if(ykl2.commonFunctions.canAnimationFrame())
+	{
+		this._drawInfo.handle = requestAnimationFrame(ykl2.animation._procAnimation);
+	}
+	else
+	{
+		//-----------------------------------------------------------------
+		// requestAnimationFrameが使えない時はアニメーションしない。
+		//-----------------------------------------------------------------
+		if(this._drawInfo.openClose === this.DRAW_OPEN)
+		{
+			this._drawInfo.element.style.width  = this._drawInfo.width  + 'px';
+			this._drawInfo.element.style.height = this._drawInfo.height + 'px';
+		}
+		else
+		{
+			this._drawInfo.element.style.display = 'none';
+		}
+		this._isAnimation = false;
+	}
+};
+/**
+* 描画情報オブジェクトを補正します。
+* @private
+* @static
+* @function
+* @param {Object} option 描画情報オブジェクトです。
+* @returns {Object} 補正された描画情報オブジェクトです。
+*/
+ykl2.animation._fixOption = function(option)
+{
+	// 要素の指定がない場合は終了。
+	if(!option.element) { option.element = null; return; }
+
+	// アニメーションの指定がない場合は縦横アニメーションにする。
+	if(this._checkAnimationFlag(option.direction) === false)
+	{
+		option.direction = this.DIRECTION_WH;
+	}
+	// アニメーション速度が指定されていない場合はデフォルトを設定します。
+	if(!option.time) { option.time = 5000; }
+
+	// 開閉フラグが設定されていない場合は要素を見て決定する。
+	if(!option.openClose)
+	{
+		if(option.element.style.display === 'none') { option.openClose = this.DRAW_OPEN;  }
+		else                                        { option.openClose = this.DRAW_CLOSE; }
+	}
+    // 表示しない状態で、且つ幅と高さの指定が 0px の場合のみ要素のサイズを取得する。
+    if(option.element.style.display === 'none' || (!option.width && !option.height))
+    {
+        const size = ykl2.commonFunctions.getElementDisplaySize(option.element);
+        option.width = size.width;
+        option.height = size.height;
+    }
+	// 補正した描画情報オブジェクトを返します。
+	return option;
+};
+/**
+* アニメーション方向フラグが正常かどうかを返します。
+* @private
+* @static
+* @function
+* @param {Number} flag アニメーション方向フラグです。
+* @returns {Boolean} true：正常 false：異常
+*/
+ykl2.animation._checkAnimationFlag = function(flag)
+{
+	// アニメーション方向が指定されている場合はtrueを返します。
+	if(flag === this.DIRECTION_WH) { return true; }
+	if(flag === this.DIRECTION_W)  { return true; }
+	if(flag === this.DIRECTION_H)  { return true; }
+
+	// アニメーションフラグが異常のためfalseを返します。
+	return false;
+};
+/**
+* 描画時の刻み値を設定します。
+* @private
+* @static
+* @function
+*/
+ykl2.animation._setDrawWH = function()
+{
+	// 刻み値を計算する。
+	this._drawInfo.drawWidth  = this._drawInfo.width  / (this._drawInfo.time / 1000);
+	this._drawInfo.drawHeight = this._drawInfo.height / (this._drawInfo.time / 1000);
+
+	// 変更方向による補正。
+	if(this._drawInfo.direction === this.DIRECTION_W) { this._drawInfo.drawHeight = 0; }
+	if(this._drawInfo.direction === this.DIRECTION_H) { this._drawInfo.drawWidth  = 0; }
+
+	// 閉じる場合はマイナス値にする。
+	if(this._drawInfo.openClose === this.DRAW_CLOSE)
+	{
+		this._drawInfo.drawWidth  = -this._drawInfo.drawWidth;
+		this._drawInfo.drawHeight = -this._drawInfo.drawHeight;
+	}
+};
+/**
+* アニメーション開始時の幅、高さを設定します。
+* @private
+* @static
+* @function
+*/
+ykl2.animation._setNowWH = function()
+{
+	// 開くアニメーションの時の処理。
+	if(this._drawInfo.openClose === this.DRAW_OPEN)
+	{
+		// 縦横アニメーションする時。
+		if(this._drawInfo.direction === this.DIRECTION_WH)
+		{
+			this._drawInfo.nowWidth  = 0;
+			this._drawInfo.nowHeight = 0;
+			return;
+		}
+		// 横アニメーションする時。
+		if(this._drawInfo.direction === this.DIRECTION_W)
+		{
+			this._drawInfo.nowWidth  = 0;
+			this._drawInfo.nowHeight = this._drawInfo.height;
+			return;
+		}
+		// 縦アニメーションする時。
+		this._drawInfo.nowWidth  = this._drawInfo.width;
+		this._drawInfo.nowHeight = 0;
+		return;
+	}
+	else
+	{
+		// 閉じるアニメーション時は最大値が初期値になる。
+		this._drawInfo.nowWidth  = this._drawInfo.width;
+		this._drawInfo.nowHeight = this._drawInfo.height;
+		return;
+	}
+};
+/**
+ * オーバーフローの値を復元します。
+ * @private
+ * @static
+ * @function
+ */
+ykl2.animation._repairOverflow = function()
+{
+    // オーバーフローの値を復元します。
+    this._drawInfo.element.style.overflow = this._overflowBackup;
+}
+/**
+* アニメーション処理を行います。
+* @private
+* @static
+* @function
+*/
+ykl2.animation._procAnimation = function()
+{
+	// 描画情報の取得。
+	const drawInfo = ykl2.animation.getDrawInfo();
+
+	// 最新の幅、高さを計算する。
+	drawInfo.nowWidth  += drawInfo.drawWidth;
+	drawInfo.nowHeight += drawInfo.drawHeight;
+
+	// 開くアニメーションか閉じるアニメーションかで処理を分ける。
+	if(drawInfo.openClose === ykl2.animation.DRAW_OPEN)
+	{
+		// 開くアニメーション時の処理。
+		drawInfo.element.style.display = 'block';
+		if(drawInfo.width <= drawInfo.nowWidth && drawInfo.height <= drawInfo.nowHeight)
+		{
+			// 現在の値が目標値を超えていれば目標値を設定して終了。
+			drawInfo.element.style.width  = drawInfo.width  + 'px';
+			drawInfo.element.style.height = drawInfo.height + 'px';
+
+			// 呼び出しをキャンセル。
+			cancelAnimationFrame(drawInfo.handle);
+
+			// アニメーション終了。
+			ykl2.animation._isAnimation = false;
+
+            // オーバーフローの値を復元。
+            ykl2.animation._repairOverflow();
+			return;
+		}
+	}
+	else
+	{
+		// 閉じるアニメーション時の処理。
+		if(drawInfo.nowWidth <= 0 || drawInfo.nowHeight <= 0)
+		{
+			// 幅または高さが0以下になったら要素を消して終了。
+			drawInfo.element.style.width   = '';
+			drawInfo.element.style.height  = '';
+			drawInfo.element.style.display = 'none';
+
+			// 呼び出しをキャンセル。
+			cancelAnimationFrame(drawInfo.handle);
+
+			// アニメーション終了。
+			ykl2.animation._isAnimation = false;
+
+			// アニメーションが終了したら表示優先度を消す。
+			ykl2.animation._drawInfo.element.style.zIndex = '';
+
+            // オーバーフローの値を復元。
+            ykl2.animation._repairOverflow();
+			return;
+		}
+	}
+	// 現在の値を要素に反映する。
+	drawInfo.element.style.width  = Math.floor(drawInfo.nowWidth)  + 'px';
+	drawInfo.element.style.height = Math.floor(drawInfo.nowHeight) + 'px';
+
+	// 呼び出しを止める。
+	cancelAnimationFrame(drawInfo.handle);
+
+	// 再度呼び出しを行う。
+	drawInfo.handle = requestAnimationFrame(ykl2.animation._procAnimation);
+};
+//-----------------------------------------------------------------------------
+//  ykl2.animation End.
 //-----------------------------------------------------------------------------

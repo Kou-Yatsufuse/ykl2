@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="common.css" />
+    <title>TEST ykl2.animation</title>
+</head>
+<body>
+
+<div onclick="toggle();">TOGGLE TEST</div>
+<div id="animeParent" style="display: none;">
+    <p>TEST 01</p>
+    <p>TEST 02</p>
+    <p>TEST 03</p>
+    <p>TEST 04</p>
+    <p>TEST 05</p>
+    <p>TEST 06</p>
+    <p>TEST 07</p>
+    <p>TEST 08</p>
+    <p>TEST 09</p>
+    <p>TEST 10</p>
+</div>
+
+<script src="../ykl2.js"></script>
+<script>
+/**
+ * 開閉アニメーションを行います。
+ * @public
+ * @static
+ * @function
+ */
+function toggle()
+{
+    // 開閉する要素とサイズを取得。
+    const ele = document.getElementById('animeParent');
+
+    // 開閉アニメーション
+    ykl2.animation.toggle(
+    {
+        element: ele,
+        direction: ykl2.animation.DIRECTION_H,
+        time: 10000
+    });
+}
+</script>
+</body>
+</html>
