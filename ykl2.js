@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-//  ykl2 v0.2.1
+//  ykl2 v0.3.0
 //-----------------------------------------------------------------------------
 //	Copyright (c) 2022 Kou Yatsufuse
 //	Released under the MIT license
@@ -692,7 +692,7 @@ ykl2.animation._fixOption = function(option)
 		if(option.element.style.display === 'none') { option.openClose = this.DRAW_OPEN;  }
 		else                                        { option.openClose = this.DRAW_CLOSE; }
 	}
-    // 表示しない状態で、且つ幅と高さの指定が 0px の場合のみ要素のサイズを取得する。
+    // 表示しない状態か、幅と高さの指定が無い場合のみ要素のサイズを取得する。
     if(option.element.style.display === 'none' || (!option.width && !option.height))
     {
         const size = ykl2.commonFunctions.getElementDisplaySize(option.element);
@@ -866,3 +866,428 @@ ykl2.animation._procAnimation = function()
 //-----------------------------------------------------------------------------
 //  ykl2.animation End.
 //-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//  ykl2.showImage Start.
+//-----------------------------------------------------------------------------
+/**
+ * 画像表示クラス宣言です。
+ * @public
+ * @static
+ * @namespace ykl2.showImage
+ */
+ykl2.showImage = {};
+/**
+ * 画像要素です。
+ * @private
+ * @field
+ * @type Element
+ */
+ykl2.showImage._imgElement = null;
+
+/**
+ * 背景要素です。
+ * @private
+ * @field
+ * @type Element
+ */
+ykl2.showImage._backElement = null;
+
+/**
+ * 画像を画面中央に表示します。
+ * @public
+ * @function
+ * @param {String} url 画像のURLです。
+ * @param {Number} width 画像の幅です。
+ * @param {Number} height 画像の高さです。
+ */
+ykl2.showImage.execute = function(url, width, height)
+{
+    // スクロールを不可にする。
+    document.body.style.overflow = 'hidden';
+
+    // スクロール量を取得します。
+    const scrollX = ykl2.commonFunctions.getScrollX();
+    const scrollY = ykl2.commonFunctions.getScrollY();
+
+    // クライアント領域を取得します。
+    let clientW = ykl2.commonFunctions.getClientWidth();
+    let clientH = ykl2.commonFunctions.getClientHeight();
+
+    // クライアント領域より幅または高さが大きかった場合の縮小処理。
+    if(clientW < width || clientH < height)
+    {
+        // 画像の幅、高さが、クライアント領域の何%を占めるかを計算。
+        let wPer = clientW / width;
+        let hPer = clientH / height;
+
+        // より小さかった大きさの割合に合わせて画像サイズを縮小する。
+        if(wPer < hPer) { width = width * wPer; height = height * wPer; }
+        else            { width = width * hPer; height = height * hPer; }
+    }
+    // 画像の表示位置を計算します。
+    let imgX = ( clientW / 2 ) - ( width  / 2 ) + scrollX;
+    let imgY = ( clientH / 2 ) - ( height / 2 ) + scrollY;
+
+    // 画像要素と背景要素を取得します。
+    this._imgElement  = this._createImageElement(url, width, height);
+    this._backElement = this._createBackElement(clientW, clientH);
+
+    // 背景画像を配置します。
+    this._backElement.style.position = 'absolute';
+    this._backElement.style.left     = scrollX + 'px';
+    this._backElement.style.top      = scrollY + 'px';
+
+    // 画像を配置します。
+    this._imgElement.style.position = 'absolute';
+    this._imgElement.style.left     = imgX + 'px';
+    this._imgElement.style.top      = imgY + 'px';
+
+    // bodyの子要素として追加します。
+    document.body.appendChild(this._backElement);
+    document.body.appendChild(this._imgElement);
+};
+/**
+ * 画像要素を作成します。
+ * @private
+ * @function
+ * @param {String} url 画像のURLです。
+ * @param {Number} width 画像の幅です。
+ * @param {Number} height 画像の高さです。
+ * @return {Element} 画像要素です。
+ */
+ykl2.showImage._createImageElement = function(url, width, height)
+{
+    // 画像要素を作成します。
+    const image = document.createElement('img');
+    image.id           = 'showImage';
+    image.src          = url;
+    image.width        = width;
+    image.height       = height;
+    image.style.zIndex = 15;
+
+    // イベントを設定します。
+    const that = this;
+    image.onclick     = function() { that._removeElements(); };
+    image.onmouseover = function() { image.style.cursor = 'pointer'; };
+    image.onmouseout  = function() { image.style.cursor = 'default'; };
+
+    // 画像要素を返します。
+    return image;
+};
+/**
+ * 背景要素を作成します。
+ * @private
+ * @function
+ * @param {Number} width
+ * @param {Number} height
+ * @return {Element} 背景要素です。
+ */
+ykl2.showImage._createBackElement = function(width, height)
+{
+    // 背景要素を作成します。
+    const back = document.createElement('div');
+    back.id                    = 'backgroundScreen';
+    back.style.margin          = '0';
+    back.style.padding         = '0';
+    back.style.width           = width + 'px';
+    back.style.height          = height + 'px';
+    back.style.backgroundColor = '#000000';
+    back.style.zIndex          = 10;
+    back.style.opacity         = 0.75;
+
+    // 背景要素を返します。
+    return back;
+};
+/**
+ * 画像、背景要素を削除します。
+ * @private
+ * @function
+ */
+ykl2.showImage._removeElements = function()
+{
+    // body要素から要素を削除します。
+    document.body.removeChild(this._imgElement);
+    document.body.removeChild(this._backElement);
+    
+    // 要素にnullを設定して参照をなくします。
+    this._imgElement = null;
+    this._backElement = null;
+
+    document.body.style.overflow = 'auto';
+};
+//-----------------------------------------------------------------------------
+//  ykl.showImage End.
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//  ykl2.tileImages Start.
+//-----------------------------------------------------------------------------
+/**
+ * 画像をタイル状に表示するクラスです。
+ * @param {String} id 自身のIDです。
+ * @param {String} parentId 親要素のIDです。
+ * @param {Number} columnCnt カラム数です。
+ * @param {Number} 画像のパディングです(px)。
+ * @namespace ykl2.tileImages
+ * @constructor
+ */
+ ykl2.tileImages = function(id, parentId, columnCnt, padding)
+ {
+     this._constructor(id, parentId, columnCnt, padding);
+ };
+ /**
+  * 自要素のID
+  * @private
+  * @field
+  * @type {String}
+  */
+ ykl2.tileImages.prototype._id = null;
+  /**
+  * 親要素のID
+  * @private
+  * @field
+  * @type {String}
+  */
+ ykl2.tileImages.prototype._parentId = null;
+  /**
+  * 横カラム数
+  * @private
+  * @field
+  * @type {Number}
+  */
+ ykl2.tileImages.prototype._columnCnt = null;
+  /**
+  * パディング
+  * @private
+  * @field
+  * @type {Number}
+  */
+ ykl2.tileImages.prototype._padding = null;
+  /**
+  * 画像の横幅です。
+  * @private
+  * @field
+  * @type {Number}
+  */
+ ykl2.tileImages.prototype._imgWidth = null;
+  /**
+  * 表示用フレーム情報配列です。
+  * @private
+  * @field
+  * @type {Array}
+  */
+ ykl2.tileImages.prototype._dispFrames = [];
+  /**
+  * フレームの高さ情報配列です。
+  * @private
+  * @field
+  * @type {Array}
+  */
+ ykl2.tileImages.prototype._frameHeight = [];
+ /**
+  * コンストラクタ
+  * @private
+  * @function
+  * @param {String} id 自要素のID
+  * @param {String} parentId 
+  * @param {Number} columnCnt
+  * @param {Number} padding
+  */
+ ykl2.tileImages.prototype._constructor = function(id, parentId, columnCnt, padding)
+ {
+     // 引数をメンバ変数に格納。
+     this._id        = id;
+     this._parentId  = parentId;
+     this._columnCnt = columnCnt;
+     this._padding   = padding;
+     
+     // カラム数が指定されていない場合はデフォルト(3)とする。
+     if(!this._columnCnt) { this._columnCnt = 3; }
+ 
+     // パディングが指定されていない場合はデフォルトとして(3)とする。
+     if(!this._padding) { this._padding = 3; }
+ 
+     // デフォルトでスクロールバーを表示する。
+     document.body.style.overflow = "scroll";
+ 
+     // 親要素の取得、ない場合はエラーメッセージを表示して終了。
+     const parentElement = document.getElementById(this._parentId);
+     if(!parentElement) { alert("ParentID Nothing!"); return; }
+     
+     // 表示領域からパディング、枠線分取り除いたものが画像横幅となる。
+     const areaWidth = this._getClientWidth(this._parentId);
+     this._imgWidth = this._getImgWidth(areaWidth);
+ 
+     // カラム数分フレームを作成する。
+     let index;
+     for(index = 0; index < this._columnCnt; index++)
+     {
+         // 要素の作成とプロパティの設定。
+         const frame = document.createElement("div");
+         frame.style.float = "left";
+         frame.style.width = this._imgWidth + "px";
+         frame.style.padding = this._padding + "px";
+         
+         // 表示フレーム配列に追加し、親要素に子要素として追加。
+         this._dispFrames.push(frame);
+         parentElement.appendChild(frame);
+ 
+         // フレーム毎の高さ計算配列を作成。
+         this._frameHeight.push(0);
+     }
+     const br = document.createElement("br");
+     br.style.clear = "both";
+     parentElement.appendChild(br);
+ 
+     // ウィンドウがリサイズされたときの処理
+     window.addEventListener('resize', { myObj: this, handleEvent: this._recalcImgWidth} );
+ };
+ /**
+  * 画像を追加します。
+  * @public
+  * @function
+  * @param {String} imgPath
+  * @param {Number} width
+  * @param {Number} height
+  */
+ ykl2.tileImages.prototype.add = function(imgPath, width, height)
+ {
+     // 画像情報オブジェクトを作成。
+     const imgData =
+     {
+         path  : imgPath,
+         w     : width,
+         h     : height
+     };
+     // 一番高さが小さいカラムのインデックスを取得。
+     const index = this._getLowHeightFrame();
+     
+     // 画像要素の作成。
+     const imgElement = this._createImageElement(imgData);
+ 
+     // 一番小さいカラムに画像要素を追加。
+     this._dispFrames[index].appendChild(imgElement);
+ 
+     // 追加した画像要素分高さを増やしておく。
+     this._frameHeight[index] += this._getImgHeight(width, height);
+ };
+ /**
+  * 画像要素を作成して返します。
+  * @private
+  * @function
+  * @param {Object} imgData
+  * @return {Object} 
+  */
+ ykl2.tileImages.prototype._createImageElement = function(imgData)
+ {
+     // 画像要素を作成して、画像のパスとクリック時に拡大表示されるよう設定。
+     const imgElement = document.createElement("img");
+     imgElement.src = imgData.path;
+     imgElement.width = imgData.w;
+     imgElement.height = imgData.h;
+     imgElement.loading = "lazy";
+     imgElement.style.maxWidth = '100%';
+     imgElement.style.height = 'auto';
+     imgElement.onclick = function(){ ykl2.showImage.execute(imgData.path, imgData.w, imgData.h); }
+ 
+     // 作成した要素を返す。
+     return imgElement;
+ };
+ /**
+  * 全カラムの中から一番縦の長さが小さいカラムインデックスを返します。
+  * @private
+  * @function
+  * @return {Number} カラムインデックス
+  */
+ ykl2.tileImages.prototype._getLowHeightFrame = function()
+ {
+     // 変数準備
+     let index;
+     const indexMax  = this._frameHeight.length;
+     let minIndex  = 0;
+     let minHeight = this._frameHeight[0];
+ 
+     // 全カラムをチェック対象とする。
+     for(index = 0; index < indexMax ; index++)
+     {
+         // 最小の長さより小さい場合に処理。
+         if(minHeight > this._frameHeight[index])
+         {
+             // 最小の長さと、そのカラムインデックスを保存。
+             minHeight = this._frameHeight[index];
+             minIndex = index;
+         }
+     }
+     // 最小のカラムインデックスを返す。
+     return minIndex;
+ };
+ /**
+  * 横幅の大きさから高さを計算して返します。
+  * @private
+  * @function
+  * @param {Number} width 画像幅
+  * @param {Number} height 画像高さ
+  * @return {Number} 横幅と同縮小率の高さ。
+  */
+ ykl2.tileImages.prototype._getImgHeight = function(width, height)
+ {
+     // 横幅が縮小される同じ比率で高さを返す。
+     const per = this._imgWidth / width;
+     return height * per;
+ };
+ /**
+  * 指定要素のクライアント領域幅を取得します。
+  * @private
+  * @function
+  * @param {String} elementId 取得対象の要素ID
+  * @return {Number} クライアント領域幅
+  */
+ ykl2.tileImages.prototype._getClientWidth = function(elementId)
+ {
+     // 親領域の取得。ない場合はnullを返す。
+     const parentElement = document.getElementById(elementId);
+     if(!parentElement) { return null; }
+ 
+     // パディングと枠線分の幅を計算。
+     const paddingWidth = parentElement.style.paddingLeft +
+                          parentElement.style.paddingRight + 2;
+ 
+     // クライアント領域の横幅を返す。
+     return parentElement.clientWidth - paddingWidth;
+ }
+ /**
+  * 画像表示横幅を取得します。
+  * @private
+  * @function
+  * @param {Number} areaWidth 表示領域の幅
+  * @return {Number} 画像表示横幅
+  */
+ ykl2.tileImages.prototype._getImgWidth = function(areaWidth)
+ {
+     return Math.floor((areaWidth / this._columnCnt)) - (this._padding * 2);
+ }
+ /**
+  * ウィンドウリサイズ時の画像幅再計算処理
+  * @private
+  * @function
+  */
+ ykl2.tileImages.prototype._recalcImgWidth = function()
+ {
+    // 渡したthisオブジェクトをthatにする。
+    const that = this.myObj;
+ 
+    // 画像サイズの計算
+    const cWidth = that._getClientWidth(that._parentId);
+    that._imgWidth = that._getImgWidth(cWidth);
+ 
+    // 全フレームの画像横幅を更新する。
+    let index;
+    for(index = 0; index < that._columnCnt; index++)
+    {
+        that._dispFrames[index].style.width = that._imgWidth + "px";
+    }
+ }
+ //-----------------------------------------------------------------------------
+ //  ykl.tileImages End.
+ //-----------------------------------------------------------------------------
+ 

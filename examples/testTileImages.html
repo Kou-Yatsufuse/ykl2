@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="common.css" />
+    <title>TEST ykl2.tileImages</title>
+</head>
+<body>
+
+<div id="img-parent" style="width: 640px;"></div>
+
+<script src="../ykl2.js"></script>
+<script>
+// 画像表示クラスを作成。
+const g_tileImages = new ykl2.tileImages('tile-image', 'img-parent', 5, 5);
+
+// ページの読み込み後に起動する関数を登録。
+ykl2.commonFunctions.addOnLoadFunction(addImages);
+/**
+ * 画像を表示クラスに追加します。
+ * @public
+ * @function
+ */
+function addImages()
+{
+    g_tileImages.add('tileImages/NRC1-001.jpg', 571, 800);
+    g_tileImages.add('tileImages/NRC1-002.jpg', 713, 800);
+    g_tileImages.add('tileImages/NRC1-003.jpg', 800, 717);
+    g_tileImages.add('tileImages/NRC1-004.jpg', 752, 800);
+    g_tileImages.add('tileImages/NRC1-005.jpg', 541, 800);
+    g_tileImages.add('tileImages/NRC1-006.jpg', 732, 800);
+    g_tileImages.add('tileImages/NRC1-007.jpg', 761, 800);
+    g_tileImages.add('tileImages/NRC1-008.jpg', 531, 800);
+    g_tileImages.add('tileImages/NRC1-009.jpg', 800, 711);
+    g_tileImages.add('tileImages/NRC1-010.jpg', 800, 702);
+    g_tileImages.add('tileImages/NRC1-011.jpg', 663, 800);
+    g_tileImages.add('tileImages/NRC1-012.jpg', 487, 800);
+    g_tileImages.add('tileImages/NRC1-013.jpg', 542, 800);
+    g_tileImages.add('tileImages/NRC1-014.jpg', 705, 800);
+    g_tileImages.add('tileImages/NRC1-015.jpg', 619, 800);
+    g_tileImages.add('tileImages/NRC1-016.jpg', 586, 800);
+    g_tileImages.add('tileImages/NRC1-017.jpg', 677, 800);
+    g_tileImages.add('tileImages/NRC1-018.jpg', 800, 727);
+    g_tileImages.add('tileImages/NRC1-019.jpg', 592, 800);
+    g_tileImages.add('tileImages/NRC1-020.jpg', 495, 800);
+    g_tileImages.add('tileImages/NRC1-021.jpg', 477, 800);
+    g_tileImages.add('tileImages/NRC1-022.jpg', 612, 800);
+    g_tileImages.add('tileImages/NRC1-023.jpg', 774, 800);
+    g_tileImages.add('tileImages/NRC1-024.jpg', 681, 800);
+    g_tileImages.add('tileImages/NRC1-025.jpg', 531, 800);
+    g_tileImages.add('tileImages/NRC1-026.jpg', 642, 800);
+    g_tileImages.add('tileImages/NRC1-027.jpg', 377, 800);
+    g_tileImages.add('tileImages/NRC1-028.jpg', 657, 800);
+    g_tileImages.add('tileImages/NRC1-029.jpg', 772, 800);
+    g_tileImages.add('tileImages/NRC1-030.jpg', 644, 800);
+}
+</script>
+</body>
+</html>
