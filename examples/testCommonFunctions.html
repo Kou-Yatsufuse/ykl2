@@ -10,6 +10,7 @@
 <div onclick="getClientArea();">[クライアント領域取得]</div>
 <div onclick="getBodyArea();">[body 要素領域取得]</div>
 <div onclick="getScrollPos();">[スクロール量取得]</div>
+<div onclick="getScrollBarWidth();">[スクロールバー幅取得]</div>
 <div onclick="canAnimationFrame();">[アニメーションフレーム対応可否]</div>
 <div onclick="getElementDisplaySize();">[要素の表示領域サイズ取得]</div>
 <div id="dummyElement">ダミー表示領域</div>
@@ -60,6 +61,16 @@ function getScrollPos()
 
     // ダイアログ表示
     alert('ScrollPos\n' + 'X: ' + x + 'px\nY: ' + y + 'px');
+}
+/**
+ * スクロールバーの幅を取得してダイアログに表示します。
+ * @public
+ * @static
+ * @function
+ */
+function getScrollBarWidth()
+{
+    alert(ykl2.commonFunctions.getScrollBarWidth() + 'px');
 }
 /**
  * アニメーションフレームに対応しているかをダイアログに表示します。
